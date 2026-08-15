@@ -756,7 +756,7 @@ setMenuOpen(false);
                     }}
                 >
                     <img
-                        src="/images/card.png"
+                        src="/storage/card.png"
                         alt="CV WIYATA AMERTA BUSINESS RUN 2026 — Total hadiah dan doorprize Rp. 150 juta"
                         style={{ display: 'block', width: '100%', height: 'auto' }}
                     />
@@ -809,7 +809,7 @@ setMenuOpen(false);
                     </motion.div>
 
                     <motion.img
-                        src="/images/run.jpg"
+                        src="/storage/run.jpg"
                         alt="Run"
                         initial={{ opacity: 0, x: 20, rotate: 2 }}
                         whileInView={{ opacity: 1, x: 0, rotate: 3 }}
