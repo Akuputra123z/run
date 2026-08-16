@@ -8,7 +8,6 @@ import {
     Facebook,
     Instagram,
     Youtube,
-    Twitter,
     MessageCircle,
     Ticket,
     Shirt,
@@ -20,14 +19,15 @@ import {
     Bike,
     Flag,
     Target,
-    Star,
     Ruler,
     Camera,
-    ClipboardList,
+    SearchCheck,
+    Trophy,
+    Award,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useState, useEffect, useRef } from 'react';
-import { create } from '@/routes/registration';
+import { create, status } from '@/routes/registration';
 import { publicMethod } from '@/routes/results';
 
 /* ---------------------------------------------------------
@@ -40,14 +40,18 @@ import { publicMethod } from '@/routes/results';
 const RACE_DATE = new Date('2026-11-15T05:00:00+07:00');
 
 const MENU_ITEMS: { label: string; href: string; icon: LucideIcon }[] = [
-    { label: 'Misi', href: '#misi', icon: Target },
-    { label: 'Duta', href: '#duta', icon: Star },
     { label: 'Kategori', href: '#kategori', icon: Medal },
     { label: 'Jadwal', href: '#jadwal', icon: Calendar },
-    { label: 'Size Chart', href: '#size-chart', icon: Ruler },
     { label: 'Rute', href: '#rute', icon: MapPin },
+    { label: 'Size Chart', href: '#size-chart', icon: Ruler },
     { label: 'Galeri', href: '#galeri', icon: Camera },
-    { label: 'Daftar', href: '#daftar', icon: ClipboardList },
+    { label: 'Misi', href: '#misi', icon: Target },
+];
+
+const SERVICE_ITEMS: { label: string; href: string; icon: LucideIcon }[] = [
+    { label: 'Cek Status', href: status().url, icon: SearchCheck },
+    { label: 'Hasil Race', href: publicMethod().url, icon: Trophy },
+    { label: 'Sertifikat', href: status().url, icon: Award },
 ];
 
 type Ambassador = {
@@ -481,14 +485,47 @@ setMenuOpen(false);
                     .sec-cut-l { clip-path: polygon(0 20px, 100% 0, 100% 100%, 0 100%); }
                     .sec-cut-r { clip-path: polygon(0 0, 100% 20px, 100% 100%, 0 100%); }
                 }
+                .desktop-nav { display: flex !important; }
+                .mobile-toggle { display: none !important; }
+                .nav-link { position: relative; }
+                .nav-link::after {
+                    content: ''; position: absolute; left: 0; right: 0; bottom: -5px; height: 2px;
+                    background: #FFC93C; transform: scaleX(0); transition: transform 0.2s ease; border-radius: 2px;
+                }
+                .nav-link:hover::after { transform: scaleX(1); }
                 @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } .hero-bg { animation: none; } }
-                @media (max-width: 860px) {
+                @media (max-width: 1023px) {
                     .desktop-nav { display: none !important; }
                     .mobile-toggle { display: flex !important; }
+                }
+                @media (max-width: 860px) {
                     .grid-2 { grid-template-columns: 1fr !important; }
                     .grid-3 { grid-template-columns: 1fr !important; }
                     .amb-grid { grid-template-columns: repeat(3,1fr) !important; }
                     .reason-grid { grid-template-columns: repeat(2,1fr) !important; }
+                    .schedule-art { margin-top: 0 !important; height: auto !important; }
+                    .menu-panel { max-height: calc(100dvh - 60px); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+                }
+                @media (max-width: 720px) {
+                    .topbar-row { padding: 12px 16px !important; gap: 8 !important; }
+                    .menu-panel { padding: 16px 14px 22px !important; }
+                    .menu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+                    .menu-item { padding: 11px 12px !important; gap: 8 !important; font-size: 13px !important; }
+                    .menu-item-icon { width: 30px !important; height: 30px !important; }
+                }
+                @media (max-width: 480px) {
+                    .countdown-label { display: none !important; }
+                    .countdown-pill { padding: 7px 12px !important; gap: 6px !important; }
+                    .countdown-time { font-size: 11.5px !important; }
+                    .countdown-days { display: none !important; }
+                    .amb-grid { grid-template-columns: repeat(2,1fr) !important; }
+                    .menu-btn { padding: 8px 13px !important; font-size: 12px !important; }
+                }
+                @media (max-width: 340px) {
+                    .countdown-pill { padding: 6px 10px !important; }
+                    .countdown-time { font-size: 10.5px !important; }
+                    .menu-btn { padding: 7px 10px !important; }
+                    .menu-grid { grid-template-columns: 1fr !important; }
                 }
             `}</style>
 
@@ -506,33 +543,59 @@ setMenuOpen(false);
                     boxShadow: scrolled ? '0 4px 18px rgba(0,0,0,0.28)' : 'none',
                 }}
             >
-                <div style={{ maxWidth: 1280, margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                    <button
-                        onClick={() => setMenuOpen(!menuOpen)}
-                        aria-expanded={menuOpen}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 8,
-                            background: menuOpen ? 'rgba(255,201,60,0.16)' : 'rgba(255,255,255,0.08)',
-                            border: menuOpen ? '1px solid rgba(255,201,60,0.55)' : '1px solid rgba(255,255,255,0.2)',
-                            color: menuOpen ? '#FFC93C' : '#FFF6E5',
-                            borderRadius: 999,
-                            padding: '9px 18px',
-                            fontSize: 13,
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                        }}
-                    >
-                        {menuOpen ? <X size={16} /> : <Menu size={16} />} {menuOpen ? 'Tutup' : 'Menu'}
-                    </button>
+                <div className="topbar-row" style={{ width: '100%', padding: '14px 24px', display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', gap: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <button
+                            onClick={() => setMenuOpen(!menuOpen)}
+                            aria-expanded={menuOpen}
+                            className="menu-btn mobile-toggle"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 8,
+                                background: menuOpen ? 'rgba(255,201,60,0.16)' : 'rgba(255,255,255,0.08)',
+                                border: menuOpen ? '1px solid rgba(255,201,60,0.55)' : '1px solid rgba(255,255,255,0.2)',
+                                color: menuOpen ? '#FFC93C' : '#FFF6E5',
+                                borderRadius: 999,
+                                padding: '9px 18px',
+                                fontSize: 13,
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                            }}
+                        >
+                            {menuOpen ? <X size={16} /> : <Menu size={16} />} {menuOpen ? 'Tutup' : 'Menu'}
+                        </button>
+
+                        <nav className="desktop-nav" aria-label="Navigasi utama" style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            {MENU_ITEMS.map((m) => (
+                                <a
+                                    key={m.label}
+                                    href={m.href}
+                                    className="nav-link"
+                                    style={{
+                                        color: '#FFF6E5',
+                                        textDecoration: 'none',
+                                        fontSize: 13,
+                                        fontWeight: 700,
+                                        padding: '8px 12px',
+                                        borderRadius: 8,
+                                        transition: 'color 0.2s',
+                                    }}
+                                >
+                                    {m.label}
+                                </a>
+                            ))}
+                        </nav>
+                    </div>
 
                     <div
+                        className="countdown-pill"
                         style={{
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: 8,
+                            justifySelf: 'center',
                             background: 'rgba(255,255,255,0.06)',
                             border: '1px solid rgba(255,255,255,0.18)',
                             borderRadius: 999,
@@ -540,36 +603,70 @@ setMenuOpen(false);
                         }}
                     >
                         <Clock size={14} color="#FFC93C" />
-                        <span style={{ color: '#FFF6E5', fontSize: 12.5, fontWeight: 700 }}>Race Day:</span>
-                        <span className="f-mono" style={{ color: '#FFC93C', fontSize: 13, fontWeight: 700 }}>
-                            {countdown.d} Days {pad(countdown.h)}:{pad(countdown.m)}:{pad(countdown.s)}
+                        <span className="countdown-label" style={{ color: '#FFF6E5', fontSize: 12.5, fontWeight: 700 }}>Race Day:</span>
+                        <span className="f-mono countdown-time" style={{ color: '#FFC93C', fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap' }}>
+                            {countdown.d}
+                            <span className="countdown-days"> Days</span> {pad(countdown.h)}:{pad(countdown.m)}:{pad(countdown.s)}
                         </span>
                     </div>
 
-                    <div style={{ display: 'flex', gap: 10 }}>
-                        {[Facebook, Youtube, Twitter, Instagram, MessageCircle].map((Icon, i) => (
-                            <div
-                                key={i}
+                    <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: 10, justifySelf: 'end' }}>
+                            <Link
+                                href={status().url}
                                 style={{
-                                    width: 30,
-                                    height: 30,
-                                    borderRadius: 8,
-                                    border: '1px solid rgba(255,255,255,0.25)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
+                                    color: '#FFF6E5',
+                                    textDecoration: 'none',
+                                    fontSize: 13,
+                                    fontWeight: 800,
+                                    padding: '9px 18px',
+                                    borderRadius: 999,
+                                    border: '1px solid rgba(255,255,255,0.35)',
+                                    transition: 'all 0.2s',
                                 }}
                             >
-                                <Icon size={14} color="#FFF6E5" />
-                            </div>
-                        ))}
-                    </div>
+                                Cek Status
+                            </Link>
+                            <Link
+                                href={publicMethod().url}
+                                style={{
+                                    color: '#FFC93C',
+                                    textDecoration: 'none',
+                                    fontSize: 13,
+                                    fontWeight: 800,
+                                    padding: '9px 18px',
+                                    borderRadius: 999,
+                                    border: '2px solid rgba(255,201,60,0.55)',
+                                    transition: 'all 0.2s',
+                                }}
+                            >
+                                Hasil
+                            </Link>
+                            <a
+                                href={create().url}
+                                className="shimmer-btn"
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    background: '#FFF6E5',
+                                    color: '#8B1620',
+                                    padding: '10px 24px',
+                                    borderRadius: 999,
+                                    fontWeight: 800,
+                                    fontSize: 13,
+                                    textDecoration: 'none',
+                                    letterSpacing: 0.5,
+                                }}
+                            >
+                                Daftar
+                            </a>
+                        </div>
                 </div>
                 {menuOpen && (
                     <motion.div
                         initial={{ opacity: 0, y: -12 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.25, ease: 'easeOut' }}
+                        className="menu-panel"
                         style={{
                             borderTop: '1px solid rgba(139,22,32,0.12)',
                             boxShadow: '0 24px 44px rgba(0,0,0,0.35)',
@@ -577,11 +674,11 @@ setMenuOpen(false);
                             backdropFilter: 'blur(10px)',
                         }}
                     >
-                        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '24px 24px 28px', display: 'flex', flexDirection: 'column', gap: 22 }}>
+                        <div style={{ width: '100%', padding: '24px 24px 28px', display: 'flex', flexDirection: 'column', gap: 22 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
                                     <div className="f-mono" style={{ fontSize: 10, letterSpacing: 2, color: '#C6242D', fontWeight: 700, marginBottom: 4 }}>
-                                        NAVIGASI
+                                        MENU
                                     </div>
                                     <div className="f-display" style={{ color: '#141414', fontSize: 18 }}>
                                         CV WIYATA AMERTA BUSINESS RUN 2026
@@ -608,91 +705,128 @@ setMenuOpen(false);
                                 </button>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10 }}>
-                                {MENU_ITEMS.map((m) => {
-                                    const Icon = m.icon;
+                            <div>
+                                <div className="f-mono" style={{ fontSize: 10, letterSpacing: 2, color: '#C6242D', fontWeight: 700, marginBottom: 10 }}>
+                                    INFORMASI
+                                </div>
+                                                                <div className="menu-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10 }}>
+                                    {MENU_ITEMS.map((m) => {
+                                        const Icon = m.icon;
 
-                                    return (
-                                        <a
-                                            key={m.label}
-                                            href={m.href}
-                                            onClick={() => setMenuOpen(false)}
-                                            className="menu-item"
-                                            style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: 12,
-                                                padding: '13px 18px',
-                                                borderRadius: 999,
-                                                background: 'rgba(139,22,32,0.05)',
-                                                border: '1px solid rgba(139,22,32,0.12)',
-                                                color: '#8B1620',
-                                                textDecoration: 'none',
-                                                fontSize: 14,
-                                                fontWeight: 800,
-                                                transition: 'all 0.2s',
-                                            }}
-                                        >
-                                            <div
+                                        return (
+                                            <a
+                                                key={m.label}
+                                                href={m.href}
+                                                onClick={() => setMenuOpen(false)}
+                                                className="menu-item"
                                                 style={{
-                                                    width: 34,
-                                                    height: 34,
-                                                    borderRadius: 999,
-                                                    background: 'rgba(198,36,45,0.12)',
                                                     display: 'flex',
                                                     alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    flexShrink: 0,
+                                                    gap: 12,
+                                                    padding: '13px 18px',
+                                                    borderRadius: 999,
+                                                    background: 'rgba(139,22,32,0.05)',
+                                                    border: '1px solid rgba(139,22,32,0.12)',
+                                                    color: '#8B1620',
+                                                    textDecoration: 'none',
+                                                    fontSize: 14,
+                                                    fontWeight: 800,
+                                                    transition: 'all 0.2s',
                                                 }}
                                             >
-                                                <Icon size={16} color="#C6242D" />
-                                            </div>
-                                            {m.label}
-                                        </a>
-                                    );
-                                })}
+                                                <div
+                                                    className="menu-item-icon"
+                                                    style={{
+                                                        width: 34,
+                                                        height: 34,
+                                                        borderRadius: 999,
+                                                        background: 'rgba(198,36,45,0.12)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        flexShrink: 0,
+                                                    }}
+                                                >
+                                                    <Icon size={16} color="#C6242D" />
+                                                </div>
+                                                {m.label}
+                                            </a>
+                                        );
+                                    })}
+                                </div>
                             </div>
 
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, borderTop: '1px solid rgba(139,22,32,0.12)', paddingTop: 18 }}>
-                                <Link
-                                    href={publicMethod().url}
-                                    onClick={() => setMenuOpen(false)}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 8,
-                                        padding: '12px 26px',
-                                        borderRadius: 999,
-                                        border: '2px solid #C6242D',
-                                        color: '#C6242D',
-                                        fontSize: 13.5,
-                                        fontWeight: 800,
-                                        textDecoration: 'none',
-                                        transition: 'all 0.2s',
-                                    }}
-                                >
-                                    Hasil Race
-                                </Link>
-                                <a
-                                    href={create().url}
-                                    onClick={() => setMenuOpen(false)}
-                                    className="shimmer-btn"
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 8,
-                                        padding: '12px 26px',
-                                        borderRadius: 999,
-                                        background: '#C6242D',
-                                        color: '#FFF6E5',
-                                        fontSize: 13.5,
-                                        fontWeight: 800,
-                                        textDecoration: 'none',
-                                    }}
-                                >
-                                    Daftar Sekarang
-                                </a>
+                            <div>
+                                <div className="f-mono" style={{ fontSize: 10, letterSpacing: 2, color: '#C6242D', fontWeight: 700, marginBottom: 10 }}>
+                                    LAYANAN
+                                </div>
+                                <div className="menu-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10 }}>
+                                    {SERVICE_ITEMS.map((s) => {
+                                        const Icon = s.icon;
+
+                                        return (
+                                            <Link
+                                                key={s.label}
+                                                href={s.href}
+                                                onClick={() => setMenuOpen(false)}
+                                                className="menu-item"
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 12,
+                                                    padding: '13px 18px',
+                                                    borderRadius: 999,
+                                                    background: 'rgba(198,36,45,0.07)',
+                                                    border: '1px solid rgba(198,36,45,0.18)',
+                                                    color: '#C6242D',
+                                                    textDecoration: 'none',
+                                                    fontSize: 14,
+                                                    fontWeight: 800,
+                                                    transition: 'all 0.2s',
+                                                }}
+                                            >
+                                                <div
+                                                    className="menu-item-icon"
+                                                    style={{
+                                                        width: 34,
+                                                        height: 34,
+                                                        borderRadius: 999,
+                                                        background: 'rgba(198,36,45,0.12)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        flexShrink: 0,
+                                                    }}
+                                                >
+                                                    <Icon size={16} color="#C6242D" />
+                                                </div>
+                                                {s.label}
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
                             </div>
+
+                            <a
+                                href={create().url}
+                                onClick={() => setMenuOpen(false)}
+                                className="shimmer-btn"
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    padding: '15px 26px',
+                                    borderRadius: 999,
+                                    background: '#C6242D',
+                                    color: '#FFF6E5',
+                                    fontSize: 14,
+                                    fontWeight: 800,
+                                    textDecoration: 'none',
+                                }}
+                            >
+                                Daftar Sekarang
+                            </a>
                         </div>
                     </motion.div>
                 )}
@@ -1069,7 +1203,7 @@ setMenuOpen(false);
                         </motion.div>
                     </div>
 
-                    <div style={{ position: 'relative', height: 340, alignSelf: 'flex-start', marginTop: 110 }}>
+                    <div className="schedule-art" style={{ position: 'relative', height: 340, alignSelf: 'flex-start', marginTop: 110 }}>
                         <motion.img
                             src="/images/event-artist.png"
                             alt="Event Artist"
@@ -1181,7 +1315,7 @@ setMenuOpen(false);
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.35 }}
-                            style={{ background: '#fff', borderRadius: 24, padding: '24px 18px 14px', boxShadow: '0 18px 40px rgba(0,0,0,0.18)', border: '2px solid #141414' }}
+                            style={{ background: '#fff', borderRadius: 24, padding: '24px 18px 14px', boxShadow: '0 18px 40px rgba(0,0,0,0.18)', border: '2px solid #141414', minWidth: 0 }}
                         >
                             <h3 style={{ textAlign: 'center', fontWeight: 900, fontSize: 17, marginBottom: 10 }}>
                                 Specs Running {genre === 'men' ? 'Men' : 'Women'}
@@ -1331,6 +1465,8 @@ setMenuOpen(false);
                                     display: 'flex',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
+                                    flexWrap: 'wrap',
+                                    gap: 8,
                                     background: i % 2 === 0 ? '#C6242D' : '#FFC93C',
                                     color: i % 2 === 0 ? '#FFF6E5' : '#141414',
                                     padding: '18px 30px',
@@ -1357,7 +1493,37 @@ setMenuOpen(false);
                     <div className="f-display" style={{ color: '#FFF6E5', fontSize: 16 }}>
                         CV WIYATA AMERTA BUSINESS RUN <span style={{ color: '#FFC93C' }}>2026</span>
                     </div>
-                    <div style={{ display: 'flex', gap: 18, alignItems: 'center', color: '#FFF6E5', opacity: 0.65, fontSize: 12.5 }}>
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                        {[
+                            { icon: Instagram, href: 'https://www.instagram.com/', label: 'Instagram' },
+                            { icon: Facebook, href: 'https://www.facebook.com/', label: 'Facebook' },
+                            { icon: Youtube, href: 'https://www.youtube.com/', label: 'YouTube' },
+                            { icon: MessageCircle, href: 'https://wa.me/', label: 'WhatsApp' },
+                        ].map(({ icon: Icon, href, label }) => (
+                            <a
+                                key={label}
+                                href={href}
+                                target="_blank"
+                                rel="noreferrer"
+                                aria-label={label}
+                                style={{
+                                    width: 34,
+                                    height: 34,
+                                    borderRadius: 10,
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: '#FFF6E5',
+                                    opacity: 0.8,
+                                    transition: 'all 0.2s',
+                                }}
+                            >
+                                <Icon size={15} />
+                            </a>
+                        ))}
+                    </div>
+                    <div style={{ display: 'flex', gap: 18, alignItems: 'center', color: '#FFF6E5', opacity: 0.65, fontSize: 12.5, width: '100%' }}>
                         <MapPin size={14} /> Pantai Karang Jahe, Rembang · © 2026
                     </div>
                 </div>

@@ -1,5 +1,5 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { ArrowRight, BadgeCheck, Banknote, Camera, CheckCircle2, Clock, FileUp, KeyRound, Printer, Search, Share2, Trophy, XCircle } from 'lucide-react';
+import { ArrowRight, BadgeCheck, Banknote, Camera, CheckCircle2, Clock, FileUp, Instagram, KeyRound, MessageCircle, Printer, Search, Trophy, XCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { certificate, home } from '@/routes';
@@ -97,9 +97,9 @@ function RacePhotoGallery({ photos }: { photos: RegistrationPayload['photos'] })
 
 function ETicket({ registration, qrUrl }: { registration: RegistrationPayload; qrUrl: string | null }) {
     return (
-        <div className="print-ticket" style={{ background: '#FFF6E5', color: '#141414', borderRadius: 20, padding: 28, position: 'relative', overflow: 'hidden' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 18 }}>
-                <div>
+        <div className="print-ticket ticket-pad" style={{ background: '#FFF6E5', color: '#141414', borderRadius: 20, padding: 28, position: 'relative', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 18, flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="f-mono" style={{ fontSize: 10, letterSpacing: 2, opacity: 0.6, marginBottom: 6 }}>E-TICKET · CV WIYATA AMERTA BUSINESS RUN 2026</div>
                     <div className="f-display" style={{ fontSize: 22, color: '#C6242D' }}>{registration.name}</div>
                     <div style={{ fontSize: 12.5, fontWeight: 700, marginTop: 10, lineHeight: 1.7 }}>
@@ -107,7 +107,7 @@ function ETicket({ registration, qrUrl }: { registration: RegistrationPayload; q
                         BIB <span style={{ color: '#C6242D' }}>{registration.race_number}</span> · {registration.paid_at}
                     </div>
                 </div>
-                {qrUrl && <img src={qrUrl} alt="QR Code e-ticket" style={{ width: 110, height: 110, borderRadius: 10, background: '#FFF6E5' }} />}
+                {qrUrl && <img className="ticket-qr" src={qrUrl} alt="QR Code e-ticket" style={{ width: 110, height: 110, borderRadius: 10, background: '#FFF6E5', flexShrink: 0 }} />}
             </div>
             <div style={{ marginTop: 18, borderTop: '2px dashed rgba(20,20,20,0.2)', paddingTop: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
@@ -263,6 +263,17 @@ export default function CekStatus({ registration, code, recovered }: Props) {
                 }
                 .inp:focus { border-color: #FFC93C; }
                 .print-root { display: none; }
+                @media (max-width: 640px) {
+                    .status-label { display: none !important; }
+                    .topbar-logo { font-size: 13px !important; }
+                    .status-badge { position: relative !important; top: auto !important; right: auto !important; display: inline-block !important; margin-top: 14px !important; }
+                    .card-pad { padding: 20px !important; }
+                    .step-desc { display: none !important; }
+                    .ticket-pad { padding: 18px !important; }
+                    .ticket-qr { width: 84px !important; height: 84px !important; }
+                    .share-actions { flex-direction: column !important; align-items: stretch !important; }
+                    .share-actions > * { width: 100% !important; justify-content: center !important; padding: 13px 20px !important; font-size: 13px !important; }
+                }
                 @media print {
                     body > *:not(.print-root) { display: none !important; }
                     body { background: #fff; }
@@ -273,11 +284,11 @@ export default function CekStatus({ registration, code, recovered }: Props) {
             `}</style>
 
             {/* top bar */}
-            <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Link href={home()} className="f-display" style={{ color: '#FFF6E5', fontSize: 16, textDecoration: 'none' }}>
+            <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+                <Link href={home()} className="f-display topbar-logo" style={{ color: '#FFF6E5', fontSize: 16, textDecoration: 'none', whiteSpace: 'nowrap' }}>
                     CV WIYATA AMERTA <span style={{ color: '#FFC93C' }}>BUSINESS RUN</span> 2026
                 </Link>
-                <div className="f-mono" style={{ fontSize: 11, opacity: 0.6 }}>STATUS CHECK</div>
+                <div className="f-mono status-label" style={{ fontSize: 11, opacity: 0.6 }}>STATUS CHECK</div>
             </div>
 
             <div style={{ maxWidth: 620, margin: '0 auto', padding: '48px 24px 80px' }}>
@@ -424,15 +435,16 @@ export default function CekStatus({ registration, code, recovered }: Props) {
                 {registration && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
                         {/* header card */}
-                        <div style={{ background: '#C6242D', borderRadius: 20, padding: '26px 26px', position: 'relative', overflow: 'hidden', border: '2px solid rgba(255,255,255,0.15)' }}>
+                        <div className="card-pad" style={{ background: '#C6242D', borderRadius: 20, padding: '26px 26px', position: 'relative', overflow: 'hidden', border: '2px solid rgba(255,255,255,0.15)' }}>
                             <div className="f-mono" style={{ fontSize: 11, opacity: 0.75, letterSpacing: 2 }}>REGISTRATION CODE</div>
-                            <div className="f-display" style={{ fontSize: 'clamp(26px, 4.5vw, 36px)', letterSpacing: 1, margin: '6px 0 14px' }}>{registration.code}</div>
+                            <div className="f-display" style={{ fontSize: 'clamp(24px, 4.5vw, 36px)', letterSpacing: 1, margin: '6px 0 14px', overflowWrap: 'anywhere' }}>{registration.code}</div>
                             <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>{registration.name}</div>
                             <div style={{ fontSize: 12.5, opacity: 0.8, fontWeight: 600 }}>
                                 {registration.category.distance} · {registration.category.name}
                                 {registration.race_number && <> · <span style={{ color: '#FFC93C', fontWeight: 800 }}>BIB {registration.race_number}</span></>}
                             </div>
                             <div
+                                className="status-badge"
                                 style={{
                                     position: 'absolute', top: 24, right: 24, padding: '7px 16px', borderRadius: 999,
                                     background: registration.status === 'verified' ? '#FFC93C' : registration.status === 'cancelled' ? '#141414' : 'rgba(255,246,229,0.15)',
@@ -496,8 +508,8 @@ export default function CekStatus({ registration, code, recovered }: Props) {
                                             }}>
                                                 {i < stepIndex ? <CheckCircle2 size={17} /> : i + 1}
                                             </div>
-                                            <div style={{ fontSize: 10.5, fontWeight: 800, marginTop: 8, opacity: i <= stepIndex ? 1 : 0.5 }}>{s.label}</div>
-                                            <div style={{ fontSize: 10, opacity: 0.5, marginTop: 2 }}>{s.desc}</div>
+                                            <div style={{ fontSize: 10.5, fontWeight: 800, marginTop: 8, opacity: i <= stepIndex ? 1 : 0.5, padding: '0 2px' }}>{s.label}</div>
+                                            <div className="step-desc" style={{ fontSize: 10, opacity: 0.5, marginTop: 2, padding: '0 2px' }}>{s.desc}</div>
                                         </div>
                                     ))}
                                 </div>
@@ -516,14 +528,14 @@ export default function CekStatus({ registration, code, recovered }: Props) {
                                             </div>
                                             <div>
                                                 <div style={{ opacity: 0.5, fontSize: 10.5, fontWeight: 700, marginBottom: 4 }}>NO. REKENING</div>
-                                                <div className="f-mono" style={{ fontWeight: 700 }}>{registration.payment.account_number}</div>
+                                                <div className="f-mono" style={{ fontWeight: 700, overflowWrap: 'anywhere' }}>{registration.payment.account_number}</div>
                                             </div>
                                         </div>
                                         <div style={{ fontSize: 13, marginTop: 12 }}>
                                             <div style={{ opacity: 0.5, fontSize: 10.5, fontWeight: 700, marginBottom: 4 }}>A/N</div>
                                             <div style={{ fontWeight: 700 }}>{registration.payment.account_name}</div>
                                         </div>
-                                        <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px dashed rgba(255,255,255,0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px dashed rgba(255,255,255,0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                                             <span style={{ fontSize: 13, opacity: 0.7 }}>Jumlah Transfer</span>
                                             <span className="f-display" style={{ color: '#FFC93C', fontSize: 20 }}>{formatRupiah(registration.total_amount)}</span>
                                         </div>
@@ -662,7 +674,7 @@ export default function CekStatus({ registration, code, recovered }: Props) {
                                                 <div className="f-mono" style={{ fontSize: 17, fontWeight: 800 }}>#{registration.result.category_rank}</div>
                                             </div>
                                         </div>
-                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 16 }}>
+                                        <div className="share-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 16 }}>
                                             <a
                                                 href={whatsappUrl}
                                                 target="_blank"
@@ -672,7 +684,7 @@ export default function CekStatus({ registration, code, recovered }: Props) {
                                                     background: '#25D366', color: '#0f3d1e', textDecoration: 'none', fontWeight: 800, fontSize: 12.5,
                                                 }}
                                             >
-                                                <Share2 size={15} /> Share WhatsApp
+                                                <MessageCircle size={16} /> Share WhatsApp
                                             </a>
                                             <button
                                                 type="button"
@@ -683,7 +695,7 @@ export default function CekStatus({ registration, code, recovered }: Props) {
                                                     fontWeight: 800, fontSize: 12.5, cursor: 'pointer',
                                                 }}
                                             >
-                                                <Share2 size={15} color="#FFC93C" /> {copied ? 'Tersalin ✓' : 'Share Instagram'}
+                                                <Instagram size={16} color="#FFC93C" /> {copied ? 'Tersalin ✓' : 'Share Instagram'}
                                             </button>
                                             <Link
                                                 href={certificate(registration.code).url}
