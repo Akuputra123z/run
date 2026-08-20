@@ -9,6 +9,6 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Http/Controllers/**, app/Http/Controllers/RegistrationStatusController.php | .ai/rules/controllers.md |
 | resources/js/** | .ai/rules/js.md |
 | app/Mail/** | .ai/rules/mail.md |
-| resources/js/pages/**, resources/js/pages/landing.tsx | .ai/rules/pages.md |
+| resources/js/pages/**, resources/js/pages/landing.tsx, resources/js/pages/*.tsx | .ai/rules/pages.md |
 | database/seeders/** | .ai/rules/seeders.md |
 | tests/** | .ai/rules/tests.md |

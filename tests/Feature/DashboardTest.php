@@ -98,6 +98,8 @@ test('admin dashboard carries analytics aggregated from the database', function 
             ->where('analytics.category_share.0.value', 150000)
             ->has('analytics.weekly_trend', 7)
             ->has('analytics.weekly_area', 7)
+            ->where('analytics.weekly_trend.6.verified', 1)
+            ->where('analytics.weekly_trend.6.pending', 1)
             ->where('analytics.top_stats.0.title', 'Kategori Terpopuler')
             ->has('analytics.transactions', 2));
 });

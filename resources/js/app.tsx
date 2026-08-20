@@ -18,6 +18,7 @@ createInertiaApp({
             case name === 'daftar':
             case name === 'cek-status':
             case name === 'hasil':
+            case name === 'foto':
             case name === 'sertifikat':
                 return FlashLayout;
             case name.startsWith('auth/'):

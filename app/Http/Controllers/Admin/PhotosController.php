@@ -10,6 +10,7 @@ use App\Support\Thumbnailer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -99,6 +100,8 @@ class PhotosController extends Controller
             ]);
         }
 
+        Cache::forget('photos.lookup.'.$bib);
+
         return back()->with(
             'success',
             count($validated['photos']).' foto untuk BIB '.$bib.' diunggah, terhubung ke '.$registration->name.' ('.$registration->code.').',
@@ -113,6 +116,8 @@ class PhotosController extends Controller
         Storage::disk('public')->delete(array_filter([$photo->photo_path, $photo->photo_thumb_path]));
 
         $photo->delete();
+
+        Cache::forget('photos.lookup.'.($photo->bib ? strtoupper($photo->bib) : ''));
 
         return back()->with('success', 'Foto untuk BIB '.$photo->bib.' dihapus.');
     }

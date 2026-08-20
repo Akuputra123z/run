@@ -54,7 +54,7 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
-    const user = usePage().props.auth.user;
+    const user = usePage().props.auth.user ?? { is_admin: false };
 
     const flowGroups: NavGroup[] = user.is_admin
         ? [

@@ -19,6 +19,7 @@ use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\RacePhotoController;
 use App\Http\Controllers\RaceResultController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\RegistrationStatusController;
@@ -32,6 +33,7 @@ Route::get('/cek-status/{code?}', RegistrationStatusController::class)->name('re
 Route::post('/cek-status/recover', [RegistrationStatusController::class, 'recover'])->name('registration.recover');
 Route::post('/pendaftaran/{registration}/bukti', [PaymentController::class, 'storeProof'])->name('registration.proof');
 Route::get('/hasil', RaceResultController::class)->name('results.public');
+Route::get('/foto/{bib?}', RacePhotoController::class)->name('photos.lookup');
 Route::get('/sertifikat/{code}', CertificateController::class)->name('certificate');
 
 Route::middleware(['auth', 'verified'])->group(function () {

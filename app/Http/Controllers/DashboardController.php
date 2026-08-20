@@ -79,8 +79,10 @@ class DashboardController extends Controller
 
         $monthRevenue = (int) $verified(Registration::query())->whereBetween('created_at', [$monthStart, $now])->sum('total_amount');
         $prevMonthRevenue = (int) $verified(Registration::query())->whereBetween('created_at', [$prevMonthStart, $monthStart])->sum('total_amount');
-        $weekCount = Registration::where('created_at', '>=', $weekStart)->count();
-        $prevWeekCount = Registration::whereBetween('created_at', [$weekStart->copy()->subWeek(), $weekStart])->count();
+        $sevenDaysAgo = $now->copy()->subDays(6)->startOfDay();
+        $fourteenDaysAgo = $now->copy()->subDays(13)->startOfDay();
+        $weekCount = Registration::where('created_at', '>=', $sevenDaysAgo)->count();
+        $prevWeekCount = Registration::whereBetween('created_at', [$fourteenDaysAgo, $sevenDaysAgo])->count();
 
         $monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
         $dayLabels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
@@ -126,16 +128,17 @@ class DashboardController extends Controller
 
         $weeklyTrend = [];
         $weeklyArea = [];
-        for ($i = 0; $i < 7; $i++) {
-            $start = $weekStart->copy()->addDays($i);
+        for ($i = 6; $i >= 0; $i--) {
+            $start = $now->copy()->subDays($i)->startOfDay();
             $end = $start->copy()->addDay();
+            $label = $dayLabels[$start->dayOfWeekIso - 1];
             $weeklyTrend[] = [
-                'day' => $dayLabels[$i],
+                'day' => $label,
                 'verified' => $verified(Registration::query())->whereBetween('created_at', [$start, $end])->count(),
                 'pending' => $pending(Registration::query())->whereBetween('created_at', [$start, $end])->count(),
             ];
             $weeklyArea[] = [
-                'label' => $dayLabels[$i],
+                'label' => $label,
                 'value' => Registration::whereBetween('created_at', [$start, $end])->count(),
             ];
         }

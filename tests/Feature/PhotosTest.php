@@ -178,6 +178,72 @@ test('admin deletes a legacy photo without a thumbnail', function () {
     $this->assertFalse(Storage::disk('public')->exists($photo->photo_path));
 });
 
+test('public photo page returns photos for a bib with thumbnails', function () {
+    $registration = Registration::factory()->verified()->create([
+        'category_id' => $this->category->id,
+        'race_number' => 'KBR-0202',
+    ]);
+    RacePhoto::factory()->create([
+        'registration_id' => $registration->id,
+        'bib' => 'KBR-0202',
+        'photographer' => 'Foto Kreatif',
+    ]);
+
+    $this->get(route('photos.lookup', 'KBR-0202'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('bib', 'KBR-0202')
+            ->has('photos', 1)
+            ->where('photos.0.photographer', 'Foto Kreatif')
+            ->has('photos.0.url')
+            ->has('photos.0.thumb_url')
+            ->missing('photos.0.name'));
+});
+
+test('public photo page normalizes lowercase bib input', function () {
+    $registration = Registration::factory()->verified()->create([
+        'category_id' => $this->category->id,
+        'race_number' => 'KBR-0421',
+    ]);
+    RacePhoto::factory()->create(['registration_id' => $registration->id, 'bib' => 'KBR-0421']);
+
+    $this->get(route('photos.lookup', 'kbr-0421'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('bib', 'KBR-0421')
+            ->has('photos', 1));
+});
+
+test('public photo page returns empty photos for unknown bib', function () {
+    $this->get(route('photos.lookup', 'KBR-9999'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('bib', 'KBR-9999')
+            ->has('photos', 0));
+});
+
+test('public photo page also matches by registration code', function () {
+    $registration = Registration::factory()->verified()->create([
+        'category_id' => $this->category->id,
+        'race_number' => 'KBR-5K-0002',
+    ]);
+    RacePhoto::factory()->create(['registration_id' => $registration->id, 'bib' => 'KBR-5K-0002']);
+
+    $this->get(route('photos.lookup', $registration->code))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('photos', 1)
+            ->has('photos.0.thumb_url'));
+});
+
+test('public photo page does not cache empty results', function () {
+    $this->get(route('photos.lookup', 'KBR-5555'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->has('photos', 0));
+
+    $this->assertDatabaseCount('cache', 0);
+});
+
 test('non-admin cannot access photos endpoints', function () {
     $user = User::factory()->create();
 

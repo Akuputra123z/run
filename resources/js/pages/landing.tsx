@@ -29,6 +29,7 @@ import { motion } from 'motion/react';
 import { useState, useEffect, useRef } from 'react';
 import { create, status } from '@/routes/registration';
 import { publicMethod } from '@/routes/results';
+import { lookup as photosLookup } from '@/routes/photos';
 
 /* ---------------------------------------------------------
    TOKENS — matched to reference: red / black / yellow
@@ -51,6 +52,7 @@ const MENU_ITEMS: { label: string; href: string; icon: LucideIcon }[] = [
 const SERVICE_ITEMS: { label: string; href: string; icon: LucideIcon }[] = [
     { label: 'Cek Status', href: status().url, icon: SearchCheck },
     { label: 'Hasil Race', href: publicMethod().url, icon: Trophy },
+    { label: 'Foto BIB', href: photosLookup().url, icon: Camera },
     { label: 'Sertifikat', href: status().url, icon: Award },
 ];
 
